@@ -1,20 +1,35 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Pelanggan;
+use Illuminate\Http\Request;
 
 class PelangganController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $data['dataPelanggan'] = Pelanggan::all();
-        return view('admin.pelanggan.index', $data);
-    }
+
+public function index(Request $request)
+{
+    $filterableColumns = [
+        'gender',
+    ];
+
+    $searchableColumns = [
+        'first_name',
+        'last_name',
+        'email',
+    ];
+
+    $dataPelanggan = Pelanggan::filter($request, $filterableColumns)
+        ->search($request, $searchableColumns)
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('admin.pelanggan.index', compact('dataPelanggan'));
+}
+
 
     /**
      * Show the form for creating a new resource.
@@ -31,11 +46,11 @@ class PelangganController extends Controller
     {
         //dd($request->all());
         $data['first_name'] = $request->first_name;
-        $data['last_name'] = $request->last_name;
-        $data['birthday'] = $request->birthday;
-        $data['gender'] = $request->gender;
-        $data['email'] = $request->email;
-        $data['phone'] = $request->phone;
+        $data['last_name']  = $request->last_name;
+        $data['birthday']   = $request->birthday;
+        $data['gender']     = $request->gender;
+        $data['email']      = $request->email;
+        $data['phone']      = $request->phone;
 
         Pelanggan::create($data);
 
@@ -65,14 +80,14 @@ class PelangganController extends Controller
     public function update(Request $request, string $id)
     {
         $pelanggan_id = $id;
-        $pelanggan = Pelanggan::findOrFail($pelanggan_id);
+        $pelanggan    = Pelanggan::findOrFail($pelanggan_id);
 
         $data['first_name'] = $request->first_name;
-        $data['last_name'] = $request->last_name;
-        $data['birthday'] = $request->birthday;
-        $data['gender'] = $request->gender;
-        $data['email'] = $request->email;
-        $data['phone'] = $request->phone;
+        $data['last_name']  = $request->last_name;
+        $data['birthday']   = $request->birthday;
+        $data['gender']     = $request->gender;
+        $data['email']      = $request->email;
+        $data['phone']      = $request->phone;
 
         $pelanggan->save();
         return redirect()->route('pelanggan.index')->with('success', 'Perubahan Data Berhasil!');
@@ -86,6 +101,6 @@ class PelangganController extends Controller
         $pelanggan = Pelanggan::findOrFail($id);
 
         $pelanggan->delete();
-        return redirect()->route('pelanggan.index')->with('success','Data berhasil dihapus');
+        return redirect()->route('pelanggan.index')->with('success', 'Data berhasil dihapus');
     }
 }
